@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/theme-toggle";
+import logoImage from "../../../T@A.png";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -80,8 +81,12 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         {/* Logo */}
         <div className="p-4 sm:p-6 border-b border-slate-200/80 dark:border-slate-700/80 bg-gradient-to-r from-primary/5 to-primary/10">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center flex-shrink-0 shadow-md">
-              <FileText className="text-white h-4 w-4 sm:h-5 sm:w-5" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center flex-shrink-0 shadow-md overflow-hidden">
+              <img 
+                src={logoImage} 
+                alt="InvoiceFlow Logo" 
+                className="w-full h-full object-cover"
+              />
             </div>
             <div className="min-w-0">
               <h1 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-50 truncate">InvoiceFlow</h1>

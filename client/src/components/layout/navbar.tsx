@@ -1,5 +1,6 @@
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import logoImage from "../../../T@A.png";
 
 interface NavbarProps {
   onMenuClick: () => void;
@@ -21,8 +22,12 @@ export function Navbar({ onMenuClick }: NavbarProps) {
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center flex-shrink-0 shadow-md">
-            <i className="fas fa-file-invoice text-white text-sm"></i>
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 shadow-md overflow-hidden">
+            <img 
+              src={logoImage} 
+              alt="InvoiceFlow Logo" 
+              className="w-full h-full object-cover"
+            />
           </div>
           <span className="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100 truncate">InvoiceFlow</span>
         </div>
