@@ -15,8 +15,7 @@ import {
   Download,
   Search,
   Filter,
-  MoreHorizontal,
-  FileText
+  MoreHorizontal
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -190,7 +189,7 @@ export function InvoiceTableNew({ invoices, onDelete, onDuplicate, isLoading = f
                           </Badge>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-lg font-semibold font-mono tabular-nums text-foreground">
+                          <span className="text-lg font-semibold text-foreground">
                             ${parseFloat(invoice.total).toFixed(2)}
                           </span>
                           <div className="flex items-center gap-1">
@@ -255,7 +254,7 @@ export function InvoiceTableNew({ invoices, onDelete, onDuplicate, isLoading = f
                           </div>
                         </div>
                         <div className="col-span-2 flex items-center">
-                          <span className="text-sm font-semibold font-mono tabular-nums text-foreground" data-testid={`amount-${invoice.id}`}>
+                          <span className="text-sm font-semibold text-foreground" data-testid={`amount-${invoice.id}`}>
                             ${parseFloat(invoice.total).toFixed(2)}
                           </span>
                         </div>

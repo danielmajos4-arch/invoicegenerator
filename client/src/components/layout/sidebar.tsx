@@ -74,7 +74,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       
       {/* Sidebar */}
       <aside className={cn(
-        "fixed left-0 top-0 z-50 h-full w-64 bg-base-200 border-r border-border shadow-lg transform transition-transform duration-300 ease-in-out md:sticky md:top-0 md:h-screen md:w-64 lg:translate-x-0 lg:static lg:z-0",
+        "fixed left-0 top-0 z-50 h-full w-64 bg-card border-r border-border shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:z-0",
         isOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         {/* Logo */}
