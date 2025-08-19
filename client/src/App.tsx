@@ -34,15 +34,15 @@ function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-background text-foreground transition-colors duration-200">
+    <div className="min-h-screen bg-background text-foreground">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      {/* FLEX WRAPPER ADDED HERE */}
-      <div className="lg:ml-64 flex flex-col min-h-screen">
+      {/* Fixed layout to prevent sidebar-related size jumps */}
+      <div className="lg:pl-64 min-h-screen transition-[padding] duration-300 ease-in-out">
         <Navbar onMenuClick={() => setSidebarOpen(true)} />
 
-        <main className="flex-1 p-3 sm:p-4 lg:p-6 overflow-x-hidden">
-          <div className="container-responsive max-w-none">
+        <main className="p-4 lg:p-6">
+          <div className="max-w-7xl mx-auto">
             <Router />
           </div>
         </main>

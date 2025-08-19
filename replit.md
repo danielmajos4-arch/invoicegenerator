@@ -10,6 +10,16 @@ The system supports dynamic invoice calculations, business information managemen
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+
+**Mobile Responsiveness Optimization (January 2025)**
+- Implemented mobile-first responsive design with consistent font sizing
+- Fixed desktop layout shifts by removing font-size scaling and container max-width jumps
+- Enhanced touch targets with 44px minimum sizes throughout the application
+- Optimized sidebar layout to prevent content reflow on desktop
+- Updated layout system to use stable padding instead of margin shifts
+- All components now work smoothly across devices without size adjustments
+
 ## System Architecture
 
 ### Frontend Architecture
