@@ -1,0 +1,186 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0 0% 100%);
+  --foreground: hsl(210 25% 7.8431%);
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(210 25% 7.8431%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(210 25% 7.8431%);
+  --primary: hsl(217 91% 60%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(210 40% 96%);
+  --secondary-foreground: hsl(210 25% 7.8431%);
+  --muted: hsl(210 40% 96%);
+  --muted-foreground: hsl(215.4 16.3% 46.9%);
+  --accent: hsl(210 40% 96%);
+  --accent-foreground: hsl(217 91% 60%);
+  --destructive: hsl(0 84.2% 60.2%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(214.3 31.8% 91.4%);
+  --input: hsl(214.3 31.8% 91.4%);
+  --ring: hsl(217 91% 60%);
+  --chart-1: hsl(217 91% 60%);
+  --chart-2: hsl(142.1 76.2% 36.3%);
+  --chart-3: hsl(42.0290 92.8251% 56.2745%);
+  --chart-4: hsl(147.1429 78.5047% 41.9608%);
+  --chart-5: hsl(341.4894 75.2000% 50.9804%);
+  --sidebar: hsl(0 0% 100%);
+  --sidebar-foreground: hsl(210 25% 7.8431%);
+  --sidebar-primary: hsl(217 91% 60%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(210 40% 96%);
+  --sidebar-accent-foreground: hsl(217 91% 60%);
+  --sidebar-border: hsl(214.3 31.8% 91.4%);
+  --sidebar-ring: hsl(217 91% 60%);
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-serif: Georgia, serif;
+  --font-mono: Menlo, monospace;
+  --radius: 0.5rem;
+  --shadow-2xs: 0px 1px 2px 0px hsl(217 91% 60% / 0.05);
+  --shadow-xs: 0px 1px 2px 0px hsl(217 91% 60% / 0.05);
+  --shadow-sm: 0px 1px 3px 0px hsl(217 91% 60% / 0.1), 0px 1px 2px -1px hsl(217 91% 60% / 0.1);
+  --shadow: 0px 1px 3px 0px hsl(217 91% 60% / 0.1), 0px 1px 2px -1px hsl(217 91% 60% / 0.1);
+  --shadow-md: 0px 4px 6px -1px hsl(217 91% 60% / 0.1), 0px 2px 4px -2px hsl(217 91% 60% / 0.1);
+  --shadow-lg: 0px 10px 15px -3px hsl(217 91% 60% / 0.1), 0px 4px 6px -4px hsl(217 91% 60% / 0.1);
+  --shadow-xl: 0px 20px 25px -5px hsl(217 91% 60% / 0.1), 0px 8px 10px -6px hsl(217 91% 60% / 0.1);
+  --shadow-2xl: 0px 25px 50px -12px hsl(217 91% 60% / 0.25);
+  --tracking-normal: 0em;
+  --spacing: 0.25rem;
+}
+
+.dark {
+  --background: hsl(224 71.4% 4.1%);
+  --foreground: hsl(210 20% 98%);
+  --card: hsl(224 71.4% 4.1%);
+  --card-foreground: hsl(210 20% 98%);
+  --popover: hsl(224 71.4% 4.1%);
+  --popover-foreground: hsl(210 20% 98%);
+  --primary: hsl(217 91% 60%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(215 27.9% 16.9%);
+  --secondary-foreground: hsl(210 20% 98%);
+  --muted: hsl(215 27.9% 16.9%);
+  --muted-foreground: hsl(217.9 10.6% 64.9%);
+  --accent: hsl(215 27.9% 16.9%);
+  --accent-foreground: hsl(217 91% 60%);
+  --destructive: hsl(0 62.8% 30.6%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(215 27.9% 16.9%);
+  --input: hsl(215 27.9% 16.9%);
+  --ring: hsl(217 91% 60%);
+  --chart-1: hsl(217 91% 60%);
+  --chart-2: hsl(142.1 76.2% 36.3%);
+  --chart-3: hsl(42.0290 92.8251% 56.2745%);
+  --chart-4: hsl(147.1429 78.5047% 41.9608%);
+  --chart-5: hsl(341.4894 75.2000% 50.9804%);
+  --sidebar: hsl(224 71.4% 4.1%);
+  --sidebar-foreground: hsl(210 20% 98%);
+  --sidebar-primary: hsl(217 91% 60%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(215 27.9% 16.9%);
+  --sidebar-accent-foreground: hsl(217 91% 60%);
+  --sidebar-border: hsl(215 27.9% 16.9%);
+  --sidebar-ring: hsl(217 91% 60%);
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-serif: Georgia, serif;
+  --font-mono: Menlo, monospace;
+  --radius: 0.5rem;
+  --shadow-2xs: 0px 1px 2px 0px hsl(217 91% 60% / 0.05);
+  --shadow-xs: 0px 1px 2px 0px hsl(217 91% 60% / 0.05);
+  --shadow-sm: 0px 1px 3px 0px hsl(217 91% 60% / 0.1), 0px 1px 2px -1px hsl(217 91% 60% / 0.1);
+  --shadow: 0px 1px 3px 0px hsl(217 91% 60% / 0.1), 0px 1px 2px -1px hsl(217 91% 60% / 0.1);
+  --shadow-md: 0px 4px 6px -1px hsl(217 91% 60% / 0.1), 0px 2px 4px -2px hsl(217 91% 60% / 0.1);
+  --shadow-lg: 0px 10px 15px -3px hsl(217 91% 60% / 0.1), 0px 4px 6px -4px hsl(217 91% 60% / 0.1);
+  --shadow-xl: 0px 20px 25px -5px hsl(217 91% 60% / 0.1), 0px 8px 10px -6px hsl(217 91% 60% / 0.1);
+  --shadow-2xl: 0px 25px 50px -12px hsl(217 91% 60% / 0.25);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-slate-50 text-foreground;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-slate-800;
+  }
+}
+
+/* Custom component styles matching the design */
+.btn-primary {
+  @apply bg-blue-600 hover:bg-blue-700 text-white;
+}
+
+.btn-outline {
+  @apply border border-slate-300 text-slate-700 hover:bg-slate-50;
+}
+
+.badge-success {
+  @apply bg-green-100 text-green-800 border-green-200;
+}
+
+.badge-warning {
+  @apply bg-yellow-100 text-yellow-800 border-yellow-200;
+}
+
+.badge-outline {
+  @apply border border-slate-300 text-slate-700 bg-white;
+}
+
+.text-success {
+  @apply text-green-600;
+}
+
+.text-warning {
+  @apply text-yellow-600;
+}
+
+.text-error {
+  @apply text-red-600;
+}
+
+.bg-success {
+  @apply bg-green-600;
+}
+
+.bg-warning {
+  @apply bg-yellow-600;
+}
+
+.bg-error {
+  @apply bg-red-600;
+}
+
+/* Table styling to match design */
+.table-zebra tbody tr:nth-child(even) {
+  @apply bg-slate-50;
+}
+
+.table-zebra tbody tr:hover {
+  @apply bg-slate-100;
+}
+
+/* Card shadows */
+.card {
+  @apply shadow-sm border border-slate-200;
+}
+
+/* Status badge styles */
+.status-paid {
+  @apply bg-green-100 text-green-800 border-green-200;
+}
+
+.status-sent {
+  @apply bg-yellow-100 text-yellow-800 border-yellow-200;
+}
+
+.status-draft {
+  @apply bg-slate-100 text-slate-600 border-slate-200;
+}
