@@ -1,12 +1,20 @@
 import Stripe from "stripe";
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+// Make Stripe optional so app can start without credentials
+let stripe: Stripe | null = null;
+
+if (process.env.STRIPE_SECRET_KEY) {
+  stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: "2025-07-30.basil",
+  });
 }
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2025-07-30.basil",
-});
+function ensureStripeConfigured(): Stripe {
+  if (!stripe) {
+    throw new Error('Stripe is not configured. Please add STRIPE_SECRET_KEY to environment variables.');
+  }
+  return stripe;
+}
 
 export interface CreateCheckoutSessionParams {
   amount: number;
@@ -21,7 +29,8 @@ export async function createCheckoutSession({
   customerEmail,
   invoiceNumber,
 }: CreateCheckoutSessionParams): Promise<Stripe.Checkout.Session> {
-  const session = await stripe.checkout.sessions.create({
+  const stripeClient = ensureStripeConfigured();
+  const session = await stripeClient.checkout.sessions.create({
     payment_method_types: ["card"],
     line_items: [
       {
@@ -51,11 +60,12 @@ export async function constructWebhookEvent(
   payload: string | Buffer,
   signature: string
 ): Promise<Stripe.Event> {
+  const stripeClient = ensureStripeConfigured();
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   
   if (!webhookSecret) {
     throw new Error('Missing required Stripe webhook secret: STRIPE_WEBHOOK_SECRET');
   }
 
-  return stripe.webhooks.constructEvent(payload, signature, webhookSecret);
+  return stripeClient.webhooks.constructEvent(payload, signature, webhookSecret);
 }

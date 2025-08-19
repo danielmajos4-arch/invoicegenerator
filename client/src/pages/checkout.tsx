@@ -7,10 +7,10 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
-if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
-  throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
-}
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+// Make Stripe optional so app can start without credentials
+const stripePromise = import.meta.env.VITE_STRIPE_PUBLIC_KEY 
+  ? loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY)
+  : null;
 
 const CheckoutForm = () => {
   const stripe = useStripe();
@@ -67,7 +67,9 @@ const CheckoutForm = () => {
 export default function Checkout() {
   const [, params] = useRoute("/checkout/:invoiceId");
   const [clientSecret, setClientSecret] = useState("");
+  const [error, setError] = useState("");
   const invoiceId = params?.invoiceId;
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!invoiceId) return;
@@ -81,8 +83,49 @@ export default function Checkout() {
       })
       .catch((error) => {
         console.error('Checkout error:', error);
+        setError(error.message || 'Payment processing is not configured');
+        toast({
+          title: "Payment Configuration Error",
+          description: "Payment processing is currently unavailable. Please contact support.",
+          variant: "destructive",
+        });
       });
-  }, [invoiceId]);
+  }, [invoiceId, toast]);
+
+  // Show error state if Stripe is not configured
+  if (!stripePromise) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <Card className="max-w-md mx-auto">
+          <CardContent className="p-6 text-center">
+            <h2 className="text-xl font-semibold mb-4">Payment Unavailable</h2>
+            <p className="text-muted-foreground mb-4">
+              Payment processing is currently not configured. Please contact support to complete your payment.
+            </p>
+            <Button onClick={() => window.history.back()} data-testid="button-back">
+              Go Back
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <Card className="max-w-md mx-auto">
+          <CardContent className="p-6 text-center">
+            <h2 className="text-xl font-semibold mb-4">Payment Error</h2>
+            <p className="text-muted-foreground mb-4">{error}</p>
+            <Button onClick={() => window.history.back()} data-testid="button-back">
+              Go Back
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (!clientSecret) {
     return (
