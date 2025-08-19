@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/theme-toggle";
-import logoImage from "../../../T@A.png";
+import logoImage from "@assets/T@A.png";
 
 interface SidebarProps {
   isOpen: boolean;

@@ -1,6 +1,6 @@
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import logoImage from "../../../T@A.png";
+import logoImage from "@assets/T@A.png";
 
 interface NavbarProps {
   onMenuClick: () => void;
