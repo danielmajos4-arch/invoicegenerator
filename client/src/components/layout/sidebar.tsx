@@ -7,10 +7,12 @@ import {
   Users, 
   BarChart3, 
   Settings,
-  User
+  User,
+  X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -72,7 +74,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       
       {/* Sidebar */}
       <aside className={cn(
-        "fixed left-0 top-0 z-50 h-full w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:z-0",
+        "fixed left-0 top-0 z-50 h-full w-64 bg-card border-r border-border shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:z-0",
         isOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         {/* Logo */}
@@ -120,15 +122,18 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         </nav>
 
         {/* User Menu */}
-        <div className="p-4 border-t border-slate-200">
-          <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-100 cursor-pointer">
-            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-              <User className="text-white h-4 w-4" />
+        <div className="p-4 border-t border-border">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent cursor-pointer">
+              <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+                <User className="text-white h-4 w-4" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium text-foreground truncate">John Doe</div>
+                <div className="text-xs text-muted-foreground truncate">john@example.com</div>
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-slate-800 truncate">John Doe</div>
-              <div className="text-xs text-slate-500 truncate">john@example.com</div>
-            </div>
+            <ThemeToggle />
           </div>
         </div>
       </aside>

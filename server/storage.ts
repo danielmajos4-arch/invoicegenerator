@@ -1,4 +1,8 @@
-import { invoices, type Invoice, type InsertInvoice, type UpdateInvoice, users, type User, type InsertUser } from "@shared/schema";
+import { 
+  invoices, type Invoice, type InsertInvoice, type UpdateInvoice,
+  users, type User, type InsertUser,
+  settings, type Settings, type InsertSettings, type UpdateSettings
+} from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
 
@@ -7,6 +11,11 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   
+  // Settings methods
+  getSettings(): Promise<Settings | undefined>;
+  createSettings(settings: InsertSettings): Promise<Settings>;
+  updateSettings(id: string, updates: UpdateSettings): Promise<Settings | undefined>;
+  
   // Invoice methods
   getInvoice(id: string): Promise<Invoice | undefined>;
   getInvoices(): Promise<Invoice[]>;
@@ -14,6 +23,7 @@ export interface IStorage {
   updateInvoice(id: string, updates: UpdateInvoice): Promise<Invoice | undefined>;
   updateInvoiceStatus(id: string, status: "DRAFT" | "SENT" | "PAID"): Promise<Invoice | undefined>;
   updateInvoiceStripeSession(id: string, stripeSessionId: string): Promise<Invoice | undefined>;
+  duplicateInvoice(id: string): Promise<Invoice | undefined>;
   deleteInvoice(id: string): Promise<boolean>;
 }
 
@@ -31,7 +41,7 @@ export class DatabaseStorage implements IStorage {
   async createUser(insertUser: InsertUser): Promise<User> {
     const [user] = await db
       .insert(users)
-      .values(insertUser)
+      .values([insertUser])
       .returning();
     return user;
   }
@@ -48,7 +58,7 @@ export class DatabaseStorage implements IStorage {
   async createInvoice(invoice: InsertInvoice): Promise<Invoice> {
     const [created] = await db
       .insert(invoices)
-      .values(invoice)
+      .values([invoice])
       .returning();
     return created;
   }
@@ -96,6 +106,53 @@ export class DatabaseStorage implements IStorage {
       .where(eq(invoices.id, id))
       .returning();
     return updated || undefined;
+  }
+
+  async getSettings(): Promise<Settings | undefined> {
+    const [settingsData] = await db.select().from(settings).limit(1);
+    return settingsData || undefined;
+  }
+
+  async createSettings(insertSettings: InsertSettings): Promise<Settings> {
+    const [created] = await db
+      .insert(settings)
+      .values([insertSettings])
+      .returning();
+    return created;
+  }
+
+  async updateSettings(id: string, updates: UpdateSettings): Promise<Settings | undefined> {
+    const validUpdates: Record<string, any> = {};
+    
+    // Only include defined values and exclude auto-generated fields
+    Object.keys(updates).forEach(key => {
+      if (updates[key as keyof UpdateSettings] !== undefined && key !== 'id' && key !== 'createdAt') {
+        validUpdates[key] = updates[key as keyof UpdateSettings];
+      }
+    });
+    
+    // Always update the updatedAt field
+    validUpdates.updatedAt = new Date();
+    
+    const [updated] = await db
+      .update(settings)
+      .set(validUpdates)
+      .where(eq(settings.id, id))
+      .returning();
+    return updated || undefined;
+  }
+
+  async duplicateInvoice(id: string): Promise<Invoice | undefined> {
+    const original = await this.getInvoice(id);
+    if (!original) return undefined;
+
+    const { id: _, createdAt, updatedAt, stripeSessionId, ...duplicateData } = original;
+    const duplicateInvoice: InsertInvoice = {
+      ...duplicateData,
+      status: "DRAFT" as const,
+    };
+
+    return await this.createInvoice(duplicateInvoice);
   }
 
   async deleteInvoice(id: string): Promise<boolean> {

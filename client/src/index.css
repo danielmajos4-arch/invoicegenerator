@@ -105,11 +105,20 @@
   }
 
   body {
-    @apply font-sans antialiased bg-slate-50 text-foreground;
+    @apply font-sans antialiased bg-background text-foreground transition-colors duration-200;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply text-slate-800;
+    @apply text-foreground;
+  }
+
+  /* Dark mode support */
+  .dark body {
+    @apply bg-base-100 text-base-content;
+  }
+  
+  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+    @apply text-base-content;
   }
 }
 

@@ -9,6 +9,21 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
 });
 
+export const settings = pgTable("settings", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  businessName: text("business_name").notNull(),
+  businessEmail: text("business_email").notNull(),
+  businessAddress: text("business_address"),
+  businessPhone: text("business_phone"),
+  businessWebsite: text("business_website"),
+  businessLogo: text("business_logo"),
+  accentColor: text("accent_color").default("#3B82F6"),
+  taxRate: decimal("tax_rate", { precision: 5, scale: 2 }).default("0"),
+  stripeCustomerPortalUrl: text("stripe_customer_portal_url"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const invoices = pgTable("invoices", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
   businessName: text("business_name").notNull(),
@@ -20,6 +35,7 @@ export const invoices = pgTable("invoices", {
   clientEmail: text("client_email").notNull(),
   clientName: text("client_name").notNull(),
   items: jsonb("items").notNull().$type<Array<{
+    id: string;
     description: string;
     quantity: number;
     rate: number;
@@ -40,6 +56,14 @@ export const insertUserSchema = createInsertSchema(users).pick({
   password: true,
 });
 
+export const insertSettingsSchema = createInsertSchema(settings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const updateSettingsSchema = insertSettingsSchema.partial();
+
 export const insertInvoiceSchema = createInsertSchema(invoices).omit({
   id: true,
   createdAt: true,
@@ -51,6 +75,9 @@ export const updateInvoiceSchema = insertInvoiceSchema.partial();
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
+export type Settings = typeof settings.$inferSelect;
+export type InsertSettings = z.infer<typeof insertSettingsSchema>;
+export type UpdateSettings = z.infer<typeof updateSettingsSchema>;
 export type Invoice = typeof invoices.$inferSelect;
 export type InsertInvoice = z.infer<typeof insertInvoiceSchema>;
 export type UpdateInvoice = z.infer<typeof updateInvoiceSchema>;

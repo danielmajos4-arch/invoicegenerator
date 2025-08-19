@@ -1,307 +1,397 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ObjectUploader } from "@/components/ObjectUploader";
-import { useBusinessInfo } from "@/hooks/use-business-info";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Info, Upload } from "lucide-react";
-import type { UploadResult } from "@uppy/core";
+import { insertSettingsSchema, type Settings, type InsertSettings } from "@shared/schema";
+import { z } from "zod";
+import { Upload, Save } from "lucide-react";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+
+const settingsFormSchema = insertSettingsSchema.extend({
+  logoFile: z.string().optional(),
+});
+
+type SettingsFormData = z.infer<typeof settingsFormSchema>;
 
 export default function Settings() {
   const { toast } = useToast();
-  const { businessInfo, updateBusinessInfo } = useBusinessInfo();
-  const [logoUrl, setLogoUrl] = useState(businessInfo.logo || '');
+  const queryClient = useQueryClient();
+  const [uploading, setUploading] = useState(false);
 
-  const form = useForm({
-    defaultValues: {
-      businessName: businessInfo.name,
-      businessEmail: businessInfo.email,
-      phone: businessInfo.phone,
-      address: businessInfo.address,
-      website: businessInfo.website,
-      taxRate: businessInfo.taxRate.toString(),
-      currency: 'USD',
-      paymentTerms: 'Net 30',
+  const { data: settings, isLoading } = useQuery<Settings>({
+    queryKey: ['/api/settings'],
+    queryFn: async () => {
+      const response = await apiRequest("GET", "/api/settings");
+      if (response.status === 404) {
+        // No settings yet, return defaults
+        return {
+          businessName: '',
+          businessEmail: '',
+          businessAddress: '',
+          businessPhone: '',
+          businessWebsite: '',
+          businessLogo: '',
+          accentColor: '#3B82F6',
+          taxRate: '0',
+          stripeCustomerPortalUrl: '',
+        } as Settings;
+      }
+      return response.json();
+    }
+  });
+
+  const form = useForm<SettingsFormData>({
+    resolver: zodResolver(settingsFormSchema),
+    defaultValues: settings || {
+      businessName: '',
+      businessEmail: '',
+      businessAddress: '',
+      businessPhone: '',
+      businessWebsite: '',
+      businessLogo: '',
+      accentColor: '#3B82F6',
+      taxRate: '0',
+      stripeCustomerPortalUrl: '',
     },
   });
 
-  const onSubmit = (data: any) => {
-    const updatedInfo = {
-      name: data.businessName,
-      email: data.businessEmail,
-      phone: data.phone,
-      address: data.address,
-      website: data.website,
-      logo: logoUrl,
-      taxRate: parseFloat(data.taxRate) || 0,
-    };
+  // Update form when settings load
+  useEffect(() => {
+    if (settings) {
+      form.reset({
+        businessName: settings.businessName || '',
+        businessEmail: settings.businessEmail || '',
+        businessAddress: settings.businessAddress || '',
+        businessPhone: settings.businessPhone || '',
+        businessWebsite: settings.businessWebsite || '',
+        businessLogo: settings.businessLogo || '',
+        accentColor: settings.accentColor || '#3B82F6',
+        taxRate: settings.taxRate || '0',
+        stripeCustomerPortalUrl: settings.stripeCustomerPortalUrl || '',
+      });
+    }
+  }, [settings, form]);
 
-    updateBusinessInfo(updatedInfo);
-    
-    toast({
-      title: "Settings Saved",
-      description: "Your business settings have been updated successfully.",
-    });
-  };
+  const saveMutation = useMutation({
+    mutationFn: async (data: SettingsFormData) => {
+      if (settings?.id) {
+        return apiRequest("PUT", `/api/settings/${settings.id}`, data);
+      } else {
+        return apiRequest("POST", "/api/settings", data);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/settings'] });
+      toast({
+        title: "Success",
+        description: "Settings saved successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to save settings",
+        variant: "destructive",
+      });
+    },
+  });
 
-  const handleGetUploadParameters = async () => {
+  const handleLogoUpload = async () => {
     try {
-      const response = await apiRequest("POST", "/api/logo/upload");
+      const response = await apiRequest("POST", "/api/objects/upload");
       const data = await response.json();
       return {
-        method: 'PUT' as const,
+        method: "PUT" as const,
         url: data.uploadURL,
       };
-    } catch (error: any) {
+    } catch (error) {
       toast({
-        title: "Upload Error",
-        description: error.message || "Failed to get upload URL",
+        title: "Error",
+        description: "Failed to get upload URL",
         variant: "destructive",
       });
       throw error;
     }
   };
 
-  const handleUploadComplete = async (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
-    try {
-      if (result.successful && result.successful.length > 0) {
-        const uploadURL = result.successful[0].uploadURL;
-        
-        const response = await apiRequest("PUT", "/api/logo", {
-          logoURL: uploadURL
-        });
-        const data = await response.json();
-        
-        setLogoUrl(data.objectPath);
-        updateBusinessInfo({ logo: data.objectPath });
-        
-        toast({
-          title: "Logo Uploaded",
-          description: "Your business logo has been uploaded successfully.",
-        });
-      }
-    } catch (error: any) {
+  const handleUploadComplete = async (result: any) => {
+    if (result.successful?.[0]?.uploadURL) {
+      const logoUrl = result.successful[0].uploadURL;
+      form.setValue("businessLogo", logoUrl);
       toast({
-        title: "Upload Error",
-        description: error.message || "Failed to save logo",
-        variant: "destructive",
+        title: "Success",
+        description: "Logo uploaded successfully",
       });
     }
+    setUploading(false);
   };
+
+  const onSubmit = async (data: SettingsFormData) => {
+    saveMutation.mutate(data);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="animate-pulse">
+          <div className="h-8 bg-muted rounded w-48 mb-2"></div>
+          <div className="h-4 bg-muted rounded w-64"></div>
+        </div>
+        <div className="grid gap-6">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-96 bg-muted rounded animate-pulse"></div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-slate-800">Settings</h1>
-        <p className="text-slate-600 mt-1">Manage your business settings and preferences</p>
+        <h1 className="text-3xl font-bold text-foreground">Settings</h1>
+        <p className="text-muted-foreground mt-1">Manage your business settings and preferences</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Business Logo */}
-        <Card>
-          <CardContent className="p-6">
-            <h3 className="text-lg font-semibold text-slate-800 mb-4">Business Logo</h3>
-            
-            <div className="space-y-4">
-              {/* Current Logo */}
-              <div className="flex items-center justify-center w-full h-32 bg-slate-100 rounded-lg border-2 border-dashed border-slate-300">
-                {logoUrl ? (
-                  <img 
-                    src={logoUrl} 
-                    alt="Business Logo" 
-                    className="max-h-full max-w-full object-contain"
-                    data-testid="current-logo"
-                  />
-                ) : (
-                  <div className="text-center">
-                    <Upload className="h-8 w-8 text-slate-400 mx-auto mb-2" />
-                    <p className="text-sm text-slate-500">No logo uploaded</p>
-                  </div>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          {/* Business Information */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Business Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="businessName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Business Name</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          data-testid="business-name" 
+                          placeholder="Your Business Name"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="businessEmail"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Business Email</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          type="email" 
+                          data-testid="business-email"
+                          placeholder="contact@yourbusiness.com"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="businessPhone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Business Phone</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          data-testid="business-phone"
+                          placeholder="+1 (555) 123-4567"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="businessWebsite"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Business Website</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          data-testid="business-website"
+                          placeholder="https://yourbusiness.com"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="businessAddress"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Business Address</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        {...field} 
+                        data-testid="business-address"
+                        placeholder="123 Business St, City, State 12345"
+                        rows={3}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-              </div>
-              
-              {/* Upload Button */}
-              <ObjectUploader
-                maxNumberOfFiles={1}
-                maxFileSize={2097152} // 2MB
-                onGetUploadParameters={handleGetUploadParameters}
-                onComplete={handleUploadComplete}
-                buttonClassName="w-full"
-              >
-                <Upload className="h-4 w-4 mr-2" />
-                Upload Logo
-              </ObjectUploader>
-              
-              <p className="text-xs text-slate-500">
-                Recommended: PNG or JPG, max 2MB, 300x300px for best results
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+              />
 
-        {/* Business Information */}
-        <Card>
-          <CardContent className="p-6">
-            <h3 className="text-lg font-semibold text-slate-800 mb-4">Default Business Information</h3>
-            
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="businessName">Business Name</Label>
-                <Input
-                  id="businessName"
-                  {...form.register('businessName')}
-                  placeholder="Your Business Name"
-                  data-testid="input-business-name"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="businessEmail">Business Email</Label>
-                <Input
-                  id="businessEmail"
-                  type="email"
-                  {...form.register('businessEmail')}
-                  placeholder="business@example.com"
-                  data-testid="input-business-email"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  {...form.register('phone')}
-                  placeholder="+1 (555) 123-4567"
-                  data-testid="input-phone"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="address">Business Address</Label>
-                <Textarea
-                  id="address"
-                  {...form.register('address')}
-                  placeholder="123 Business St, City, State 12345"
-                  data-testid="input-address"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="website">Website</Label>
-                <Input
-                  id="website"
-                  type="url"
-                  {...form.register('website')}
-                  placeholder="https://yourcompany.com"
-                  data-testid="input-website"
-                />
-              </div>
-              
-              <div className="flex justify-end">
-                <Button type="submit" data-testid="button-save-settings">
-                  Save Changes
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
+              <FormField
+                control={form.control}
+                name="taxRate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tax Rate (%)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        {...field} 
+                        type="number" 
+                        step="0.01" 
+                        min="0"
+                        data-testid="tax-rate"
+                        placeholder="8.25"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
 
-        {/* Payment Settings */}
-        <Card>
-          <CardContent className="p-6">
-            <h3 className="text-lg font-semibold text-slate-800 mb-4">Payment Settings</h3>
-            
-            <div className="space-y-4">
+          {/* Branding */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Branding</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="taxRate">Default Tax Rate (%)</Label>
-                <Input
-                  id="taxRate"
-                  type="number"
-                  step="0.01"
-                  {...form.register('taxRate')}
-                  placeholder="8.5"
-                  data-testid="input-tax-rate"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="currency">Currency</Label>
-                <Select defaultValue="USD">
-                  <SelectTrigger data-testid="select-currency">
-                    <SelectValue placeholder="Select currency" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="USD">USD ($)</SelectItem>
-                    <SelectItem value="EUR">EUR (€)</SelectItem>
-                    <SelectItem value="GBP">GBP (£)</SelectItem>
-                    <SelectItem value="CAD">CAD (C$)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="paymentTerms">Payment Terms</Label>
-                <Select defaultValue="Net 30">
-                  <SelectTrigger data-testid="select-payment-terms">
-                    <SelectValue placeholder="Select payment terms" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Due immediately">Due immediately</SelectItem>
-                    <SelectItem value="Net 15">Net 15</SelectItem>
-                    <SelectItem value="Net 30">Net 30</SelectItem>
-                    <SelectItem value="Net 60">Net 60</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* API Configuration */}
-        <Card>
-          <CardContent className="p-6">
-            <h3 className="text-lg font-semibold text-slate-800 mb-4">API Configuration</h3>
-            
-            <div className="space-y-4">
-              <Alert>
-                <Info className="h-4 w-4" />
-                <AlertDescription>
-                  Configure your API keys in the environment variables for security.
-                </AlertDescription>
-              </Alert>
-              
-              <div className="space-y-2">
-                <Label>Stripe Status</Label>
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    Connected
-                  </span>
-                  <span className="text-sm text-slate-600">Payments enabled</span>
+                <Label>Business Logo</Label>
+                <div className="flex items-center gap-4">
+                  {form.watch("businessLogo") && (
+                    <div className="w-16 h-16 rounded border border-border overflow-hidden">
+                      <img 
+                        src={`/public-objects${form.watch("businessLogo")}`} 
+                        alt="Business Logo" 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  <ObjectUploader
+                    maxNumberOfFiles={1}
+                    maxFileSize={5242880} // 5MB
+                    onGetUploadParameters={handleLogoUpload}
+                    onComplete={handleUploadComplete}
+                    buttonClassName="flex items-center gap-2"
+                  >
+                    <Upload className="h-4 w-4" />
+                    Upload Logo
+                  </ObjectUploader>
                 </div>
+                <p className="text-sm text-muted-foreground">
+                  Upload your business logo (PNG, JPG, max 5MB)
+                </p>
               </div>
-              
-              <div className="space-y-2">
-                <Label>Email Service Status</Label>
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    Connected
-                  </span>
-                  <span className="text-sm text-slate-600">Email notifications enabled</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+
+              <FormField
+                control={form.control}
+                name="accentColor"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Accent Color</FormLabel>
+                    <FormControl>
+                      <div className="flex items-center gap-2">
+                        <Input 
+                          {...field} 
+                          type="color" 
+                          data-testid="accent-color"
+                          className="w-16 h-10"
+                        />
+                        <Input 
+                          {...field} 
+                          data-testid="accent-color-hex"
+                          placeholder="#3B82F6"
+                          className="font-mono"
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Payment Settings */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Payment Settings</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <FormField
+                control={form.control}
+                name="stripeCustomerPortalUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Stripe Customer Portal URL</FormLabel>
+                    <FormControl>
+                      <Input 
+                        {...field} 
+                        data-testid="stripe-portal-url"
+                        placeholder="https://billing.stripe.com/p/login/..."
+                      />
+                    </FormControl>
+                    <FormMessage />
+                    <p className="text-sm text-muted-foreground">
+                      URL for customers to manage their payment methods and billing
+                    </p>
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Submit Button */}
+          <div className="flex justify-end">
+            <Button 
+              type="submit" 
+              disabled={saveMutation.isPending}
+              data-testid="save-settings"
+              className="flex items-center gap-2"
+            >
+              <Save className="h-4 w-4" />
+              {saveMutation.isPending ? "Saving..." : "Save Settings"}
+            </Button>
+          </div>
+        </form>
+      </Form>
     </div>
   );
 }
