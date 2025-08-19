@@ -133,7 +133,7 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
           <p className="text-muted-foreground mt-1">
@@ -141,7 +141,7 @@ export default function Dashboard() {
           </p>
         </div>
         <Link href="/create">
-          <Button className="flex items-center gap-2" data-testid="create-invoice-button">
+          <Button className="flex items-center gap-2 w-auto" data-testid="create-invoice-button">
             <Plus className="h-4 w-4" />
             Create Invoice
           </Button>
@@ -149,14 +149,14 @@ export default function Dashboard() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="bg-base-100 rounded-lg p-4 shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400" data-testid="total-revenue">
+            <div className="text-2xl font-bold font-mono tabular-nums text-green-600 dark:text-green-400" data-testid="total-revenue">
               ${stats.totalRevenue.toFixed(2)}
             </div>
             <p className="text-xs text-muted-foreground">
@@ -165,13 +165,13 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-base-100 rounded-lg p-4 shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Pending</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400" data-testid="pending-amount">
+            <div className="text-2xl font-bold font-mono tabular-nums text-yellow-600 dark:text-yellow-400" data-testid="pending-amount">
               ${stats.pendingAmount.toFixed(2)}
             </div>
             <p className="text-xs text-muted-foreground">
@@ -180,13 +180,13 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-base-100 rounded-lg p-4 shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Invoices</CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold" data-testid="total-invoices">
+            <div className="text-2xl font-bold font-mono tabular-nums" data-testid="total-invoices">
               {stats.totalInvoices}
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -197,13 +197,13 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-base-100 rounded-lg p-4 shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Success Rate</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold" data-testid="success-rate">
+            <div className="text-2xl font-bold font-mono tabular-nums" data-testid="success-rate">
               {stats.totalInvoices > 0 
                 ? Math.round((stats.paidCount / stats.totalInvoices) * 100)
                 : 0
@@ -263,7 +263,7 @@ export default function Dashboard() {
 
         {invoices.length === 0 ? (
           <Card>
-            <CardContent className="p-8 text-center">
+            <CardContent className="p-8 text-center min-h-[400px] flex items-center justify-center">
               <div className="flex flex-col items-center gap-4">
                 <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
                   <FileText className="h-8 w-8 text-muted-foreground" />
@@ -285,12 +285,14 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         ) : (
-          <InvoiceTableNew 
-            invoices={invoices.slice(0, 10)} // Show recent 10
-            onDelete={handleDelete}
-            onDuplicate={handleDuplicate}
-            isLoading={deleteMutation.isPending || duplicateMutation.isPending}
-          />
+          <div className="overflow-x-auto md:overflow-x-visible">
+            <InvoiceTableNew 
+              invoices={invoices.slice(0, 10)} // Show recent 10
+              onDelete={handleDelete}
+              onDuplicate={handleDuplicate}
+              isLoading={deleteMutation.isPending || duplicateMutation.isPending}
+            />
+          </div>
         )}
       </div>
 
