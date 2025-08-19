@@ -3,6 +3,90 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Mobile-first responsive base styles */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  /* Minimum font size for readability on small screens */
+  font-size: 14px;
+}
+
+/* Scale up font size for larger screens */
+@media (min-width: 640px) {
+  html { font-size: 15px; }
+}
+
+@media (min-width: 768px) {
+  html { font-size: 16px; }
+}
+
+@media (min-width: 1024px) {
+  html { font-size: 16px; }
+}
+
+/* Ensure minimum touch target sizes (44px minimum) */
+button, 
+input[type="button"], 
+input[type="submit"], 
+input[type="reset"], 
+a,
+.clickable {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Responsive images */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Ensure text remains readable at all sizes */
+.text-xs { font-size: max(0.75rem, 12px); }
+.text-sm { font-size: max(0.875rem, 13px); }
+.text-base { font-size: max(1rem, 14px); }
+.text-lg { font-size: max(1.125rem, 16px); }
+.text-xl { font-size: max(1.25rem, 18px); }
+
+/* Custom responsive utilities */
+.container-responsive {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container-responsive {
+    max-width: 640px;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .container-responsive {
+    max-width: 768px;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-responsive {
+    max-width: 1024px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container-responsive {
+    max-width: 1280px;
+  }
+}
+
 :root {
   --background: hsl(0 0% 100%);
   --foreground: hsl(210 25% 7.8431%);

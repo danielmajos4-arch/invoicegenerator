@@ -162,26 +162,26 @@ export default function CreateInvoice() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
         <Link href="/">
-          <Button variant="ghost" size="sm" className="gap-2">
+          <Button variant="ghost" size="sm" className="gap-2 min-h-[44px] touch-manipulation self-start">
             <ArrowLeft className="h-4 w-4" />
             Back to Invoices
           </Button>
         </Link>
-        <div>
-          <h1 className="text-3xl font-bold text-slate-800">Create Invoice</h1>
-          <p className="text-slate-600 mt-1">Generate a new invoice for your client</p>
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-slate-100">Create Invoice</h1>
+          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 mt-1">Generate a new invoice for your client</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Invoice Form */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-4 sm:space-y-6">
           {/* Business Information */}
           <Card>
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold text-slate-800 mb-4">Business Information</h3>
+            <CardContent className="p-4 sm:p-6">
+              <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-4">Business Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="businessName">Business Name *</Label>
@@ -189,6 +189,7 @@ export default function CreateInvoice() {
                     id="businessName"
                     {...form.register('businessName')}
                     placeholder="Your Business Name"
+                    className="min-h-[44px]"
                     data-testid="input-business-name"
                   />
                 </div>
@@ -199,6 +200,7 @@ export default function CreateInvoice() {
                     type="email"
                     {...form.register('businessEmail')}
                     placeholder="business@example.com"
+                    className="min-h-[44px]"
                     data-testid="input-business-email"
                   />
                 </div>
@@ -217,8 +219,8 @@ export default function CreateInvoice() {
 
           {/* Client Information */}
           <Card>
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold text-slate-800 mb-4">Client Information</h3>
+            <CardContent className="p-4 sm:p-6">
+              <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-4">Client Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="clientName">Client Name *</Label>
@@ -226,6 +228,7 @@ export default function CreateInvoice() {
                     id="clientName"
                     {...form.register('clientName')}
                     placeholder="Client Name"
+                    className="min-h-[44px]"
                     data-testid="input-client-name"
                   />
                 </div>
@@ -236,6 +239,7 @@ export default function CreateInvoice() {
                     type="email"
                     {...form.register('clientEmail')}
                     placeholder="client@example.com"
+                    className="min-h-[44px]"
                     data-testid="input-client-email"
                   />
                 </div>
@@ -245,7 +249,7 @@ export default function CreateInvoice() {
 
           {/* Line Items */}
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <LineItemForm 
                 items={lineItems} 
                 onItemsChange={setLineItems}
@@ -255,11 +259,11 @@ export default function CreateInvoice() {
         </div>
 
         {/* Invoice Summary */}
-        <div className="lg:col-span-1 space-y-6">
+        <div className="lg:col-span-1 space-y-4 sm:space-y-6">
           {/* Totals */}
           <Card>
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold text-slate-800 mb-4">Invoice Summary</h3>
+            <CardContent className="p-4 sm:p-6">
+              <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-4">Invoice Summary</h3>
               
               <div className="space-y-3">
                 <div className="flex justify-between">
@@ -291,7 +295,7 @@ export default function CreateInvoice() {
                         type="number"
                         step="0.01"
                         {...form.register('taxRate')}
-                        className="h-6 text-xs"
+                        className="h-10 sm:h-6 text-xs min-h-[40px] sm:min-h-[24px]"
                         data-testid="input-tax-rate"
                       />
                     </div>
@@ -313,9 +317,9 @@ export default function CreateInvoice() {
               </div>
 
               {/* Actions */}
-              <div className="mt-6 space-y-2">
+              <div className="mt-6 space-y-3">
                 <Button 
-                  className="w-full gap-2" 
+                  className="w-full gap-2 min-h-[48px] touch-manipulation" 
                   onClick={() => onSubmit(false)}
                   disabled={sendMutation.isPending}
                   data-testid="button-send-invoice"
@@ -325,7 +329,7 @@ export default function CreateInvoice() {
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="w-full gap-2"
+                  className="w-full gap-2 min-h-[48px] touch-manipulation"
                   onClick={() => onSubmit(true)}
                   disabled={createMutation.isPending}
                   data-testid="button-save-draft"
@@ -339,15 +343,15 @@ export default function CreateInvoice() {
 
           {/* Preview */}
           <Card>
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold text-slate-800 mb-4">Preview</h3>
-              <div className="text-xs bg-slate-50 p-3 rounded-lg">
+            <CardContent className="p-4 sm:p-6">
+              <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-4">Preview</h3>
+              <div className="text-xs sm:text-sm bg-slate-50 dark:bg-slate-800 p-3 sm:p-4 rounded-lg">
                 <div className="font-semibold mb-2">Invoice Preview</div>
-                <div className="text-slate-600 mb-3">
+                <div className="text-slate-600 dark:text-slate-400 mb-3">
                   <div>{form.watch('businessName') || 'Your Business Name'}</div>
                   <div>{form.watch('businessEmail') || 'business@example.com'}</div>
                 </div>
-                <div className="text-slate-600 mb-3">
+                <div className="text-slate-600 dark:text-slate-400 mb-3">
                   <div className="font-medium">Bill To:</div>
                   <div>{form.watch('clientName') || 'Client Name'}</div>
                   <div>{form.watch('clientEmail') || 'client@example.com'}</div>

@@ -15,7 +15,8 @@ import {
   Download,
   Search,
   Filter,
-  MoreHorizontal
+  MoreHorizontal,
+  FileText
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -109,10 +110,10 @@ export function InvoiceTableNew({ invoices, onDelete, onDuplicate, isLoading = f
     <Card>
       <CardContent className="p-0">
         {/* Header with filters */}
-        <div className="p-6 border-b border-border">
+        <div className="p-4 sm:p-6 border-b border-border">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <h2 className="text-lg font-semibold text-foreground">Invoices</h2>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               {/* Search */}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -120,15 +121,15 @@ export function InvoiceTableNew({ invoices, onDelete, onDuplicate, isLoading = f
                   placeholder="Search invoices..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 w-64"
+                  className="pl-9 w-full sm:w-64 min-h-[44px]"
                   data-testid="invoice-search"
                 />
               </div>
               
               {/* Status filter */}
               <Select value={statusFilter} onValueChange={(value: StatusFilter) => setStatusFilter(value)}>
-                <SelectTrigger className="w-32" data-testid="status-filter">
-                  <Filter className="h-4 w-4 mr-2" />
+                <SelectTrigger className="w-full sm:w-32 min-h-[44px]" data-testid="status-filter">
+                  <Filter className="h-4 w-4 mr-2 flex-shrink-0" />
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -194,13 +195,13 @@ export function InvoiceTableNew({ invoices, onDelete, onDuplicate, isLoading = f
                           </span>
                           <div className="flex items-center gap-1">
                             <Link href={`/invoice/${invoice.id}`}>
-                              <Button variant="ghost" size="sm" data-testid={`view-invoice-${invoice.id}`}>
+                              <Button variant="ghost" size="sm" className="min-h-[44px] min-w-[44px] touch-manipulation" data-testid={`view-invoice-${invoice.id}`}>
                                 <Eye className="h-4 w-4" />
                               </Button>
                             </Link>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm" data-testid={`invoice-menu-${invoice.id}`}>
+                                <Button variant="ghost" size="sm" className="min-h-[44px] min-w-[44px] touch-manipulation" data-testid={`invoice-menu-${invoice.id}`}>
                                   <MoreHorizontal className="h-4 w-4" />
                                 </Button>
                               </DropdownMenuTrigger>
@@ -271,13 +272,13 @@ export function InvoiceTableNew({ invoices, onDelete, onDuplicate, isLoading = f
                         <div className="col-span-1 flex items-center justify-end">
                           <div className="flex items-center gap-1">
                             <Link href={`/invoice/${invoice.id}`}>
-                              <Button variant="ghost" size="sm" data-testid={`view-invoice-${invoice.id}`}>
+                              <Button variant="ghost" size="sm" className="min-h-[44px] min-w-[44px] touch-manipulation" data-testid={`view-invoice-${invoice.id}`}>
                                 <Eye className="h-4 w-4" />
                               </Button>
                             </Link>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm" data-testid={`invoice-menu-${invoice.id}`}>
+                                <Button variant="ghost" size="sm" className="min-h-[44px] min-w-[44px] touch-manipulation" data-testid={`invoice-menu-${invoice.id}`}>
                                   <MoreHorizontal className="h-4 w-4" />
                                 </Button>
                               </DropdownMenuTrigger>

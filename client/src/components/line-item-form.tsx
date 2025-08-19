@@ -49,13 +49,14 @@ export function LineItemForm({ items, onItemsChange }: LineItemFormProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-slate-800">Line Items</h3>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Line Items</h3>
         <Button 
           type="button"
           variant="outline" 
           size="sm" 
           onClick={addItem}
+          className="min-h-[44px] touch-manipulation self-start sm:self-auto"
           data-testid="add-line-item"
         >
           <i className="fas fa-plus mr-2"></i>
@@ -66,7 +67,7 @@ export function LineItemForm({ items, onItemsChange }: LineItemFormProps) {
       {items.map((item, index) => (
         <div 
           key={item.id} 
-          className="grid grid-cols-12 gap-3 items-end p-4 bg-slate-50 rounded-lg"
+          className="grid grid-cols-12 gap-3 items-end p-3 sm:p-4 bg-slate-50 dark:bg-slate-800 rounded-lg"
         >
           <div className="col-span-12 md:col-span-5">
             <Label className="text-sm font-medium">Description</Label>
@@ -75,56 +76,56 @@ export function LineItemForm({ items, onItemsChange }: LineItemFormProps) {
               placeholder="Item description"
               value={item.description}
               onChange={(e) => updateItem(item.id, 'description', e.target.value)}
-              className="mt-1"
+              className="mt-1 min-h-[44px]"
               data-testid={`description-${index}`}
             />
           </div>
           
-          <div className="col-span-6 md:col-span-2">
+          <div className="col-span-4 sm:col-span-6 md:col-span-2">
             <Label className="text-sm font-medium">Qty</Label>
             <Input
               type="number"
               placeholder="1"
               value={item.quantity || ''}
               onChange={(e) => updateItem(item.id, 'quantity', parseFloat(e.target.value) || 0)}
-              className="mt-1"
+              className="mt-1 min-h-[44px]"
               min="0"
               step="1"
               data-testid={`quantity-${index}`}
             />
           </div>
           
-          <div className="col-span-6 md:col-span-2">
+          <div className="col-span-4 sm:col-span-6 md:col-span-2">
             <Label className="text-sm font-medium">Rate</Label>
             <Input
               type="number"
               placeholder="0.00"
               value={item.rate || ''}
               onChange={(e) => updateItem(item.id, 'rate', parseFloat(e.target.value) || 0)}
-              className="mt-1"
+              className="mt-1 min-h-[44px]"
               min="0"
               step="0.01"
               data-testid={`rate-${index}`}
             />
           </div>
           
-          <div className="col-span-10 md:col-span-2">
+          <div className="col-span-2 sm:col-span-8 md:col-span-2">
             <Label className="text-sm font-medium">Total</Label>
             <div 
-              className="text-sm font-semibold p-2 bg-white rounded border mt-1"
+              className="text-sm font-semibold p-2 bg-white dark:bg-slate-700 rounded border mt-1 min-h-[44px] flex items-center"
               data-testid={`total-${index}`}
             >
               ${item.total.toFixed(2)}
             </div>
           </div>
           
-          <div className="col-span-2 md:col-span-1">
+          <div className="col-span-2 sm:col-span-4 md:col-span-1">
             <Button
               type="button"
               variant="ghost"
               size="sm"
               onClick={() => removeItem(item.id)}
-              className="text-red-600 hover:text-red-700"
+              className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900 min-h-[44px] w-full touch-manipulation"
               data-testid={`remove-item-${index}`}
             >
               <Trash2 className="h-4 w-4" />
@@ -134,9 +135,9 @@ export function LineItemForm({ items, onItemsChange }: LineItemFormProps) {
       ))}
 
       {items.length === 0 && (
-        <div className="text-center py-8 text-slate-500">
+        <div className="text-center py-8 text-slate-500 dark:text-slate-400">
           <i className="fas fa-plus-circle text-2xl mb-2 opacity-50"></i>
-          <p>No line items added. Click "Add Item" to get started.</p>
+          <p className="text-sm sm:text-base">No line items added. Click "Add Item" to get started.</p>
         </div>
       )}
     </div>

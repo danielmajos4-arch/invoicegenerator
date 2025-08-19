@@ -41,8 +41,10 @@ function AppLayout() {
       <div className="lg:ml-64 flex flex-col min-h-screen">
         <Navbar onMenuClick={() => setSidebarOpen(true)} />
 
-        <main className="flex-1 p-4 lg:p-6">
-          <Router />
+        <main className="flex-1 p-3 sm:p-4 lg:p-6 overflow-x-hidden">
+          <div className="container-responsive max-w-none">
+            <Router />
+          </div>
         </main>
       </div>
     </div>
