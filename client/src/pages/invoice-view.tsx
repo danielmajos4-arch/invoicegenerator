@@ -194,7 +194,7 @@ export default function InvoiceView() {
                   ${invoice.subtotal}
                 </span>
               </div>
-              {parseFloat(invoice.taxAmount) > 0 && (
+              {parseFloat(invoice.taxAmount ?? "0") > 0 && (
                 <div className="flex justify-between py-2">
                   <span className="text-slate-600">Tax ({invoice.taxRate}%):</span>
                   <span className="font-semibold" data-testid="invoice-tax">

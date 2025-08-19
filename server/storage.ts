@@ -49,20 +49,41 @@ export class DatabaseStorage implements IStorage {
     const [created] = await db
       .insert(invoices)
       .values({
-        ...invoice,
-        updatedAt: new Date(),
+        businessName: invoice.businessName,
+        businessEmail: invoice.businessEmail,
+        businessAddress: invoice.businessAddress,
+        businessPhone: invoice.businessPhone,
+        businessWebsite: invoice.businessWebsite,
+        businessLogo: invoice.businessLogo,
+        clientEmail: invoice.clientEmail,
+        clientName: invoice.clientName,
+        items: invoice.items,
+        subtotal: invoice.subtotal,
+        taxRate: invoice.taxRate,
+        taxAmount: invoice.taxAmount,
+        total: invoice.total,
+        status: invoice.status,
       })
       .returning();
     return created;
   }
 
   async updateInvoice(id: string, updates: UpdateInvoice): Promise<Invoice | undefined> {
+    const validUpdates: Record<string, any> = {};
+    
+    // Only include defined values and exclude auto-generated fields
+    Object.keys(updates).forEach(key => {
+      if (updates[key as keyof UpdateInvoice] !== undefined && key !== 'id' && key !== 'createdAt') {
+        validUpdates[key] = updates[key as keyof UpdateInvoice];
+      }
+    });
+    
+    // Always update the updatedAt field
+    validUpdates.updatedAt = new Date();
+    
     const [updated] = await db
       .update(invoices)
-      .set({
-        ...updates,
-        updatedAt: new Date(),
-      })
+      .set(validUpdates)
       .where(eq(invoices.id, id))
       .returning();
     return updated || undefined;
@@ -94,7 +115,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteInvoice(id: string): Promise<boolean> {
     const result = await db.delete(invoices).where(eq(invoices.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 }
 
