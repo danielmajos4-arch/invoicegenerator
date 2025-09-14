@@ -1,6 +1,5 @@
 import type { Express } from "express";
 import express from "express";
-import { createServer, type Server } from "http";
 import rateLimit from "express-rate-limit";
 import { storage } from "./storage";
 import { insertInvoiceSchema, updateInvoiceSchema, insertSettingsSchema, updateSettingsSchema } from "@shared/schema";
@@ -11,7 +10,7 @@ import { ObjectPermission } from "./objectAcl";
 import puppeteer from "puppeteer-core";
 import chromium from "@sparticuz/chromium";
 
-export async function registerRoutes(app: Express): Promise<Server> {
+export async function registerRoutes(app: Express): Promise<void> {
   // Rate limiting for invoice creation
   const invoiceCreateLimiter = rateLimit({
     windowMs: 60 * 1000, // 1 minute
@@ -42,6 +41,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const uploadURL = await objectStorageService.getObjectEntityUploadURL();
     res.json({ uploadURL });
   });
+  
   // Invoice CRUD routes
   app.get("/api/invoices", async (req, res) => {
     try {
@@ -259,20 +259,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       let browser;
       try {
-        if (process.env.NODE_ENV === "production") {
-          browser = await puppeteer.launch({
-            args: chromium.args,
-            defaultViewport: chromium.defaultViewport,
-            executablePath: await chromium.executablePath(),
-            headless: chromium.headless,
-            ignoreHTTPSErrors: true,
-          });
-        } else {
-          browser = await puppeteer.launch({
-            headless: true,
-            args: ['--no-sandbox', '--disable-setuid-sandbox'],
-          });
-        }
+        // Always use chromium for serverless (Vercel)
+        browser = await puppeteer.launch({
+          args: chromium.args,
+          defaultViewport: chromium.defaultViewport,
+          executablePath: await chromium.executablePath(),
+          headless: chromium.headless,
+          ignoreHTTPSErrors: true,
+        });
 
         const page = await browser.newPage();
         await page.setContent(html, { waitUntil: 'networkidle0' });
@@ -305,9 +299,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Error generating PDF: " + error.message });
     }
   });
-
-  const httpServer = createServer(app);
-  return httpServer;
 }
 
 function generateInvoicePDFHTML(invoice: any, settings: any): string {
