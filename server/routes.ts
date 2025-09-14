@@ -9,7 +9,7 @@ import { sendInvoiceEmail, sendPaymentConfirmationEmail } from "./services/email
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
 import puppeteer from "puppeteer-core";
-import chromium from "chrome-aws-lambda";
+import chromium from "@sparticuz/chromium";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Rate limiting for invoice creation
@@ -263,8 +263,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           browser = await puppeteer.launch({
             args: chromium.args,
             defaultViewport: chromium.defaultViewport,
-            executablePath: await chromium.executablePath,
+            executablePath: await chromium.executablePath(),
             headless: chromium.headless,
+            ignoreHTTPSErrors: true,
           });
         } else {
           browser = await puppeteer.launch({
